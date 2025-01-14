@@ -116,6 +116,30 @@ def test_symbol_to_word_ratio(text: str, symbol_to_word: float, nlp: spacy.Langu
     doc = nlp(text)
     assert abs(symbol_to_word_ratio(doc, symbol="#") - symbol_to_word) < 0.01
 
+@pytest.mark.parametrize(
+    "text_1, text_2, symbol, expected_relation",
+    [
+        ("Hello, world!", "Hello, world!!", "!", "increase"),
+        ("Hello, world!", "Hello,  world!", "!", "equal"),
+        ("Hello, world!", "Hello, world! Hi", "!", "decrease")
+    ]
+)
+def test_symbol_to_word_ratio_metamorph(text_1: str, text_2: str, symbol: str,
+                                        expected_relation: str, nlp: spacy.Language):
+    """Test the symbol_to_word_ratio function with metamorph approach."""
+    span_1 = nlp(text_1)
+    span_2 = nlp(text_2)
+
+    ratio_1 = symbol_to_word_ratio(span_1, symbol)
+    ratio_2 = symbol_to_word_ratio(span_2, symbol)
+
+    if expected_relation == "increase":
+        assert ratio_2 > ratio_1
+    elif expected_relation == "decrease":
+        assert ratio_2 < ratio_1
+    elif expected_relation == "equal":
+        assert ratio_2 == ratio_1
+
 
 # test duplicate ngram fraction
 @pytest.mark.parametrize(
